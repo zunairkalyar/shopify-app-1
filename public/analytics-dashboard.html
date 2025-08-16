@@ -25,6 +25,43 @@
             padding: 20px;
         }
 
+        /* Navigation */
+        .nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .header {
             text-align: center;
             color: white;
@@ -387,6 +424,28 @@
 </head>
 <body>
     <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-webhook"></i>
+                Webhook System
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="orders.html" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="analytics-dashboard.html" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+            </div>
+        </nav>
+
         <div class="header">
             <h1>📊 Analytics Dashboard</h1>
             <p><span class="status-indicator" id="statusIndicator"></span><span id="statusText">Real-time Order Processing & Message Delivery Analytics</span></p>
@@ -430,32 +489,6 @@
         <div class="dashboard-grid">
             <!-- Left Column -->
             <div class="left-column">
-                <!-- Orders Chart -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">📈</div>
-                            Orders Over Time (24h)
-                        </div>
-                        <button class="btn btn-small" onclick="refreshCharts()">🔄 Refresh</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="ordersChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Message Delivery Chart -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">💬</div>
-                            Message Delivery Success
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="deliveryChart"></canvas>
-                    </div>
-                </div>
 
                 <!-- Order Metrics -->
                 <div class="card">
