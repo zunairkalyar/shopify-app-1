@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook System - Order Alert Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .stats-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .icon-webhook { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .icon-message { background: linear-gradient(135deg, #10b981, #059669); }
+        .icon-test { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .icon-settings { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .webhook-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .webhook-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .webhook-item:last-child {
+            border-bottom: none;
+        }
+
+        .webhook-details h4 {
+            color: #1a202c;
+            margin-bottom: 0.25rem;
+        }
+
+        .webhook-details p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .webhook-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 16px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close:hover {
+            color: #1a202c;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .json-viewer {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin-top: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #166534;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-webhook"></i>
+                Webhook System Dashboard
+            </h1>
+            <p>Real-time Order Processing & Message Generation</p>
+            <div class="status-indicator" id="serverStatus">
+                <div class="status-dot"></div>
+                <span>Checking server status...</span>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Statistics -->
+            <div class="card stats-card">
+                <div class="stats-number" id="totalWebhooks">0</div>
+                <div class="stats-label">Total Webhooks Processed</div>
+            </div>
+
+            <div class="card stats-card">
+                <div class="stats-number" id="successRate">0%</div>
+                <div class="stats-label">Success Rate</div>
+            </div>
+
+            <!-- Webhook URLs -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-webhook">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="card-title">Webhook URLs</div>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="showWebhookUrls()">
+                        <i class="fas fa-copy"></i>
+                        View & Copy URLs
+                    </button>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                        Ready-to-use webhook URLs for Shopify integration
+                    </p>
+                </div>
+            </div>
+
+            <!-- Message Templates -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-message">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="card-title">Message Templates</div>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="showTemplates()">
+                        <i class="fas fa-edit"></i>
+                        Manage Templates
+                    </button>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                        Customize WhatsApp, Email & SMS templates
+                    </p>
+                </div>
+            </div>
+
+            <!-- Test Webhook -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-test">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <div class="card-title">Test Webhook</div>
+                </div>
+                <div>
+                    <button class="btn btn-warning" onclick="showTestWebhook()">
+                        <i class="fas fa-play"></i>
+                        Send Test Data
+                    </button>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                        Test your webhook processing with sample data
+                    </p>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-settings">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-title">System Settings</div>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="showSettings()">
+                        <i class="fas fa-wrench"></i>
+                        Configure System
+                    </button>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                        Shop name, contact info, and other settings
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Webhooks -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-webhook">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="card-title">Recent Webhooks</div>
+            </div>
+            <div class="webhook-list" id="webhookList">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading recent webhooks...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Webhook URLs Modal -->
+    <div id="webhookUrlsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Webhook URLs</h2>
+                <span class="close" onclick="closeModal('webhookUrlsModal')">&times;</span>
+            </div>
+            <div>
+                <p style="margin-bottom: 1rem; color: #6b7280;">
+                    Copy these URLs and paste them into your Shopify webhook settings:
+                </p>
+                
+                <div class="form-group">
+                    <label>Order Created Webhook</label>
+                    <input type="text" class="form-control" value="http://localhost:3000/api/webhooks/order-create" readonly onclick="this.select()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Order Fulfilled Webhook</label>
+                    <input type="text" class="form-control" value="http://localhost:3000/api/webhooks/order-fulfilled" readonly onclick="this.select()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Order Cancelled Webhook</label>
+                    <input type="text" class="form-control" value="http://localhost:3000/api/webhooks/order-cancelled" readonly onclick="this.select()">
+                </div>
+                
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Setup Instructions:</strong><br>
+                    1. Go to Shopify Admin → Settings → Notifications<br>
+                    2. Scroll to "Webhooks" section<br>
+                    3. Click "Create webhook"<br>
+                    4. Select event type and paste the corresponding URL<br>
+                    5. Set Format to "JSON" and API version to "2023-10"
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Webhook Modal -->
+    <div id="testWebhookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Test Webhook</h2>
+                <span class="close" onclick="closeModal('testWebhookModal')">&times;</span>
+            </div>
+            
+            <form onsubmit="sendTestWebhook(event)">
+                <div class="form-group">
+                    <label>Webhook Type</label>
+                    <select class="form-control" id="testWebhookType">
+                        <option value="orders/create">Order Created</option>
+                        <option value="orders/fulfilled">Order Fulfilled</option>
+                        <option value="orders/cancelled">Order Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Test Webhook
+                    </button>
+                </div>
+            </form>
+            
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <!-- Template Preview Modal -->
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Message Templates</h2>
+                <span class="close" onclick="closeModal('templateModal')">&times;</span>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('whatsapp')">WhatsApp</button>
+                <button class="tab" onclick="showTab('email')">Email</button>
+                <button class="tab" onclick="showTab('sms')">SMS</button>
+            </div>
+            
+            <div id="whatsapp" class="tab-content active">
+                <h4>WhatsApp Message Template</h4>
+                <div class="json-viewer" id="whatsappTemplate">Loading...</div>
+            </div>
+            
+            <div id="email" class="tab-content">
+                <h4>Email Template</h4>
+                <div class="json-viewer" id="emailTemplate">Loading...</div>
+            </div>
+            
+            <div id="sms" class="tab-content">
+                <h4>SMS Template</h4>
+                <div class="json-viewer" id="smsTemplate">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

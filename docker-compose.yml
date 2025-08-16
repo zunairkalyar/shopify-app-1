@@ -1,0 +1,133 @@
+# Docker Compose for Webhook System
+# Complete development and production stack
+
+version: '3.8'
+
+services:
+  # Main webhook application
+  webhook-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: webhook-system
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DATABASE_URL=mongodb://mongo:27017/webhook-system
+      - REDIS_URL=redis://redis:6379
+      - SHOP_NAME=${SHOP_NAME:-MazayLO}
+      - SUPPORT_PHONE=${SUPPORT_PHONE:-+92-300-1234567}
+      - SUPPORT_EMAIL=${SUPPORT_EMAIL:-support@mazaylo.com}
+      - WEBSITE_URL=${WEBSITE_URL:-https://mazaylo.com}
+      - ENABLE_DATABASE=true
+      - ENABLE_LOGGING=true
+    volumes:
+      - webhook_data:/app/data
+      - webhook_logs:/app/logs
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - webhook-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webhook.rule=Host(`webhook.localhost`)"
+      - "traefik.http.services.webhook.loadbalancer.server.port=3000"
+
+  # MongoDB database
+  mongo:
+    image: mongo:6
+    container_name: webhook-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=webhook-system
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - webhook-network
+    command: mongod --auth --bind_ip_all
+
+  # Redis for caching and queues
+  redis:
+    image: redis:7-alpine
+    container_name: webhook-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispass}
+    volumes:
+      - redis_data:/data
+    networks:
+      - webhook-network
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: webhook-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - webhook-app
+    networks:
+      - webhook-network
+    profiles:
+      - with-proxy
+
+  # PostgreSQL (alternative to MongoDB)
+  postgres:
+    image: postgres:15-alpine
+    container_name: webhook-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=webhook_system
+      - POSTGRES_USER=${POSTGRES_USER:-webhook}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - webhook-network
+    profiles:
+      - postgres
+
+volumes:
+  webhook_data:
+    driver: local
+  webhook_logs:
+    driver: local
+  mongo_data:
+    driver: local
+  mongo_config:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  webhook-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
