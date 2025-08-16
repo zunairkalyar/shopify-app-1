@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Webhook System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Navigation */
+        .nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        /* Filters */
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .filter-control {
+            padding: 0.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            min-width: 120px;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Orders Table */
+        .orders-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .orders-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .orders-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .orders-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .orders-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .order-id {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .customer-name {
+            font-weight: 500;
+            color: #1a202c;
+        }
+
+        .customer-email {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .order-amount {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-created {
+            background: rgba(34, 197, 94, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-fulfilled {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e3a8a;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .order-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .pagination-info {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .orders-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .orders-stats {
+                justify-content: center;
+            }
+
+            .orders-table {
+                font-size: 0.875rem;
+            }
+
+            .orders-table th,
+            .orders-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .orders-table th:nth-child(n+4),
+            .orders-table td:nth-child(n+4) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-webhook"></i>
+                Webhook System
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="orders.html" class="nav-link active">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="analytics-dashboard.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-shopping-cart"></i>
+                Orders Management
+            </h1>
+            <p>Track and manage orders received via webhooks</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Event Type</label>
+                <select class="filter-control" id="eventFilter">
+                    <option value="all">All Events</option>
+                    <option value="created">Created</option>
+                    <option value="fulfilled">Fulfilled</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Date Range</label>
+                <select class="filter-control" id="dateFilter">
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" class="filter-control" id="searchFilter" placeholder="Order ID or Customer">
+            </div>
+
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+            </div>
+
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-success" onclick="refreshOrders()">
+                    <i class="fas fa-sync"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Orders Container -->
+        <div class="orders-container">
+            <!-- Orders Header with Stats -->
+            <div class="orders-header">
+                <div class="orders-title">
+                    <i class="fas fa-list"></i>
+                    Order List
+                </div>
+                <div class="orders-stats" id="ordersStats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalOrders">0</div>
+                        <div>Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="createdOrders">0</div>
+                        <div>Created</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="fulfilledOrders">0</div>
+                        <div>Fulfilled</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="cancelledOrders">0</div>
+                        <div>Cancelled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div id="ordersTableContainer">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Event Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading">
+                                    <i class="fas fa-spinner fa-spin"></i><br>
+                                    Loading orders...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <button class="pagination-btn" id="prevBtn" onclick="previousPage()" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                    Previous
+                </button>
+                <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+                <button class="pagination-btn" id="nextBtn" onclick="nextPage()" disabled>
+                    Next
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Orders Page JavaScript
+         * Manages order data display and interactions
+         */
+        class OrdersManager {
+            constructor() {
+                this.currentPage = 1;
+                this.ordersPerPage = 10;
+                this.allOrders = [];
+                this.filteredOrders = [];
+                this.filters = {
+                    event: 'all',
+                    date: 'all',
+                    search: ''
+                };
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Initializing Orders Manager');
+                await this.loadOrders();
+                this.setupEventListeners();
+                console.log('✅ Orders Manager initialized successfully');
+            }
+
+            setupEventListeners() {
+                // Auto-refresh every 30 seconds
+                setInterval(() => this.loadOrders(), 30000);
+
+                // Search input with debounce
+                let searchTimeout;
+                document.getElementById('searchFilter').addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        this.filters.search = e.target.value;
+                        this.applyFilters();
+                    }, 500);
+                });
+            }
+
+            async loadOrders() {
+                try {
+                    console.log('📡 Loading orders data...');
+                    const response = await fetch('/api/analytics/orders');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.allOrders = data.orders || [];
+                        this.updateStats(data.summary || {});
+                        this.applyFilters();
+                        console.log(`✅ Loaded ${this.allOrders.length} orders`);
+                    } else {
+                        throw new Error(data.error || 'Failed to load orders');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load orders:', error);
+                    this.showError(`Failed to load orders: ${error.message}`);
+                }
+            }
+
+            updateStats(summary) {
+                document.getElementById('totalOrders').textContent = 
+                    (summary.created || 0) + (summary.fulfilled || 0) + (summary.cancelled || 0);
+                document.getElementById('createdOrders').textContent = summary.created || 0;
+                document.getElementById('fulfilledOrders').textContent = summary.fulfilled || 0;
+                document.getElementById('cancelledOrders').textContent = summary.cancelled || 0;
+            }
+
+            applyFilters() {
+                let filtered = [...this.allOrders];
+
+                // Filter by event type
+                if (this.filters.event !== 'all') {
+                    filtered = filtered.filter(order => order.event_type === this.filters.event);
+                }
+
+                // Filter by date
+                if (this.filters.date !== 'all') {
+                    const now = new Date();
+                    const cutoff = new Date();
+
+                    switch (this.filters.date) {
+                        case 'today':
+                            cutoff.setHours(0, 0, 0, 0);
+                            break;
+                        case 'week':
+                            cutoff.setDate(now.getDate() - 7);
+                            break;
+                        case 'month':
+                            cutoff.setMonth(now.getMonth() - 1);
+                            break;
+                    }
+
+                    filtered = filtered.filter(order => 
+                        new Date(order.created_at) >= cutoff
+                    );
+                }
+
+                // Filter by search
+                if (this.filters.search) {
+                    const search = this.filters.search.toLowerCase();
+                    filtered = filtered.filter(order =>
+                        order.order_id.toLowerCase().includes(search) ||
+                        order.customer_name.toLowerCase().includes(search)
+                    );
+                }
+
+                this.filteredOrders = filtered;
+                this.currentPage = 1;
+                this.displayOrders();
+                this.updatePagination();
+            }
+
+            displayOrders() {
+                const tbody = document.getElementById('ordersTableBody');
+                
+                if (this.filteredOrders.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <h3>No Orders Found</h3>
+                                    <p>No orders match the current filters or none have been received yet.</p>
+                                </div>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                const startIndex = (this.currentPage - 1) * this.ordersPerPage;
+                const endIndex = startIndex + this.ordersPerPage;
+                const currentOrders = this.filteredOrders.slice(startIndex, endIndex);
+
+                tbody.innerHTML = currentOrders.map(order => this.createOrderRow(order)).join('');
+            }
+
+            createOrderRow(order) {
+                const customerInfo = `
+                    <div class="customer-info">
+                        <div class="customer-name">${order.customer_name || 'Guest Customer'}</div>
+                        <div class="customer-email">${order.customer_email || 'No email'}</div>
+                    </div>`;
+
+                const amount = `<div class="order-amount">${order.currency || 'PKR'} ${order.total_amount || 0}</div>`;
+                
+                const status = `<span class="order-status status-${order.event_type}">${order.event_type}</span>`;
+                
+                const date = new Date(order.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const actions = `
+                    <div class="order-actions">
+                        <button class="btn btn-primary btn-small" onclick="viewOrder('${order.order_id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>`;
+
+                return `
+                    <tr>
+                        <td><div class="order-id">#${order.order_id}</div></td>
+                        <td>${customerInfo}</td>
+                        <td>${amount}</td>
+                        <td>${order.event_type}</td>
+                        <td>${status}</td>
+                        <td><div class="order-date">${date}</div></td>
+                        <td>${actions}</td>
+                    </tr>`;
+            }
+
+            updatePagination() {
+                const totalPages = Math.ceil(this.filteredOrders.length / this.ordersPerPage);
+                
+                document.getElementById('pageInfo').textContent = 
+                    `Page ${this.currentPage} of ${totalPages} (${this.filteredOrders.length} orders)`;
+                
+                document.getElementById('prevBtn').disabled = this.currentPage <= 1;
+                document.getElementById('nextBtn').disabled = this.currentPage >= totalPages;
+            }
+
+            showError(message) {
+                const tbody = document.getElementById('ordersTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                                <h3>Error Loading Orders</h3>
+                                <p>${message}</p>
+                                <button class="btn btn-primary" onclick="ordersManager.loadOrders()">
+                                    <i class="fas fa-sync"></i>
+                                    Retry
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+            }
+
+            nextPage() {
+                const totalPages = Math.ceil(this.filteredOrders.length / this.ordersPerPage);
+                if (this.currentPage < totalPages) {
+                    this.currentPage++;
+                    this.displayOrders();
+                    this.updatePagination();
+                }
+            }
+
+            previousPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.displayOrders();
+                    this.updatePagination();
+                }
+            }
+        }
+
+        // Global functions
+        let ordersManager;
+
+        function applyFilters() {
+            ordersManager.filters.event = document.getElementById('eventFilter').value;
+            ordersManager.filters.date = document.getElementById('dateFilter').value;
+            ordersManager.filters.search = document.getElementById('searchFilter').value;
+            ordersManager.applyFilters();
+        }
+
+        function refreshOrders() {
+            ordersManager.loadOrders();
+        }
+
+        function nextPage() {
+            ordersManager.nextPage();
+        }
+
+        function previousPage() {
+            ordersManager.previousPage();
+        }
+
+        function viewOrder(orderId) {
+            alert(`View order details for: ${orderId}\n\nOrder details modal coming soon!`);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            ordersManager = new OrdersManager();
+        });
+    </script>
+</body>
+</html>
