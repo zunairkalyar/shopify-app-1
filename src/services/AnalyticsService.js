@@ -6,8 +6,11 @@
  * - Message delivery rates
  * - Performance analytics
  * - Real-time dashboards
+ * 
+ * Now uses Supabase database for persistent storage
  */
 
+const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs').promises;
 const path = require('path');
 

@@ -12,7 +12,7 @@ const fs = require('fs').promises;
 // Import our custom modules
 const DataOrganizer = require('./src/organizers/DataOrganizer');
 const MessageTemplates = require('./src/templates/MessageTemplates');
-const AnalyticsService = require('./src/services/AnalyticsService');
+const SupabaseAnalyticsService = require('./src/services/SupabaseAnalyticsService');
 
 class WebhookApp {
     constructor(options = {}) {
@@ -47,7 +47,7 @@ class WebhookApp {
         });
 
         // Initialize analytics service
-        this.analyticsService = new AnalyticsService();
+        this.analyticsService = new SupabaseAnalyticsService();
 
         // Storage for processed webhooks
         this.webhookStorage = new Map();
