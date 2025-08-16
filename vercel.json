@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "webhook-system",
   "builds": [
     {
       "src": "app.js",
@@ -17,43 +16,8 @@
       "dest": "/public/$1"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/app.js"
-    },
-    {
-      "src": "/health",
-      "dest": "/app.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "/app.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "app.js": {
-      "maxDuration": 30
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Accept, Authorization, X-Shopify-Topic, X-Shopify-Shop-Domain"
-        }
-      ]
     }
   ]
 }
