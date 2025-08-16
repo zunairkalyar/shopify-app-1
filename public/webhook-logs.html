@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Logs - Real-time Monitoring</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Navigation */
+        .nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .logs-controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .filter-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .logs-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-toggle.active {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .refresh-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-toggle.active .refresh-slider {
+            transform: translateX(26px);
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .logs-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logs-grid th,
+        .logs-grid td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .logs-grid th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logs-grid tbody tr {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .logs-grid tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .webhook-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .type-create {
+            background: rgba(34, 197, 94, 0.1);
+            color: #166534;
+        }
+
+        .type-fulfilled {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+        }
+
+        .type-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            margin: 2% auto;
+            padding: 0;
+            width: 95%;
+            max-width: 1000px;
+            border-radius: 16px;
+            max-height: 95vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: calc(95vh - 120px);
+            overflow-y: auto;
+        }
+
+        .webhook-details {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .detail-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .detail-section h3 {
+            color: #374151;
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .json-viewer {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+            }
+            
+            .search-box,
+            .filter-box {
+                min-width: auto;
+            }
+            
+            .logs-grid {
+                font-size: 0.875rem;
+            }
+            
+            .logs-grid th,
+            .logs-grid td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.25rem;
+        }
+
+        .dot-success { background: #10b981; }
+        .dot-error { background: #ef4444; }
+        .dot-pending { background: #f59e0b; }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">
+                <i class="fas fa-webhook"></i>
+                Webhook System
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="orders.html" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="webhook-logs.html" class="nav-link active">
+                    <i class="fas fa-list-alt"></i>
+                    Webhook Logs
+                </a>
+                <a href="analytics-dashboard.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-list-alt"></i>
+                Webhook Logs
+            </h1>
+            <p>Real-time monitoring of all incoming webhook requests</p>
+        </div>
+
+        <!-- API Status Alert -->
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>API Status:</strong> The webhook logs API is currently being deployed. The logs will be available once the backend is updated on Vercel.
+        </div>
+
+        <!-- Controls -->
+        <div class="logs-controls">
+            <div class="controls-row">
+                <div class="control-group search-box">
+                    <label>Search</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search by order ID, customer name, or email...">
+                </div>
+                <div class="control-group filter-box">
+                    <label>Webhook Type</label>
+                    <select class="form-control" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="orders/create">Order Created</option>
+                        <option value="orders/fulfilled">Order Fulfilled</option>
+                        <option value="orders/cancelled">Order Cancelled</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Status</label>
+                    <select class="form-control" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="success">Success</option>
+                        <option value="error">Error</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls-row">
+                <button class="btn btn-primary" onclick="refreshLogs()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button class="btn btn-success" onclick="exportLogs()">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button class="btn btn-warning" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i>
+                    Clear Logs
+                </button>
+            </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="logs-table">
+            <div class="table-header">
+                <div class="table-title">
+                    <i class="fas fa-stream"></i>
+                    Recent Webhooks
+                    <span id="logsCount" class="status-badge status-success">0 total</span>
+                </div>
+                <div class="auto-refresh">
+                    <span>Auto Refresh</span>
+                    <div class="refresh-toggle" id="autoRefreshToggle" onclick="toggleAutoRefresh()">
+                        <div class="refresh-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="logs-grid">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Type</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">
+                                <i class="fas fa-server"></i>
+                                <h3>API Deployment Pending</h3>
+                                <p>The webhook logs API is being deployed to Vercel.</p>
+                                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                                    Webhook logs will appear here once the API is available.
+                                </p>
+                                <button class="btn btn-primary" onclick="refreshLogs()" style="margin-top: 1rem;">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Check Again
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- Pagination controls will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Webhook Details Modal -->
+    <div id="webhookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-eye"></i>
+                    Webhook Details
+                </div>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="webhook-details" id="webhookDetails">
+                    <!-- Webhook details will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Temporary webhook logs manager for when API is not available
+        class TemporaryWebhookLogsManager {
+            constructor() {
+                this.apiAvailable = false;
+                this.init();
+            }
+
+            async init() {
+                await this.checkAPIAvailability();
+                this.setupEventListeners();
+            }
+
+            async checkAPIAvailability() {
+                try {
+                    const response = await fetch('https://shopify-app-1-seven.vercel.app/api/webhook-logs');
+                    if (response.ok) {
+                        this.apiAvailable = true;
+                        this.loadActualLogs();
+                    }
+                } catch (error) {
+                    console.log('API not available yet, showing placeholder');
+                    this.showAPIUnavailableMessage();
+                }
+            }
+
+            setupEventListeners() {
+                // Modal close
+                const modal = document.getElementById('webhookModal');
+                if (modal) {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            this.closeModal();
+                        }
+                    });
+                }
+
+                // ESC key to close modal
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            showAPIUnavailableMessage() {
+                const tableBody = document.getElementById('logsTableBody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-server" style="color: #f59e0b;"></i>
+                            <h3>Webhook Logs API Deploying...</h3>
+                            <p>The webhook logs functionality is currently being deployed to Vercel.</p>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                                Your webhook endpoints are working! Once the API is deployed, all logs will appear here.
+                            </p>
+                            <div style="margin-top: 1rem;">
+                                <button class="btn btn-primary" onclick="location.reload()">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Check Again
+                                </button>
+                                <button class="btn btn-success" onclick="window.open('https://shopify-app-1-seven.vercel.app/', '_blank')">
+                                    <i class="fas fa-home"></i>
+                                    Dashboard
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            async loadActualLogs() {
+                // Load the actual webhook logs JavaScript
+                const script = document.createElement('script');
+                script.src = '/static/js/webhook-logs.js';
+                document.head.appendChild(script);
+            }
+
+            closeModal() {
+                const modal = document.getElementById('webhookModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+
+        // Global functions (placeholders)
+        function refreshLogs() {
+            location.reload();
+        }
+
+        function exportLogs() {
+            alert('Export functionality will be available once the API is deployed.');
+        }
+
+        function clearLogs() {
+            alert('Clear logs functionality will be available once the API is deployed.');
+        }
+
+        function toggleAutoRefresh() {
+            alert('Auto-refresh will be available once the API is deployed.');
+        }
+
+        function closeModal() {
+            if (window.webhookLogs) {
+                webhookLogs.closeModal();
+            } else if (window.tempManager) {
+                tempManager.closeModal();
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.tempManager = new TemporaryWebhookLogsManager();
+        });
+    </script>
+</body>
+</html>

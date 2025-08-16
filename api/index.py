@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Simple in-memory storage for Vercel (since we can't use persistent SQLite)
 # In production, you'd use a proper database like PostgreSQL, MongoDB, or Supabase
 orders_store = []
+webhook_logs = []  # Store all webhook requests with full data
 stats_store = {
     'created': 0,
     'fulfilled': 0, 
@@ -57,6 +58,7 @@ def handle_order_created():
         
         if not webhook_data:
             logger.error("No webhook data received")
+            log_webhook_request('orders/create', {}, 'error', 'No data received')
             return jsonify({'error': 'No data received'}), 400
             
         # Extract order data
@@ -74,6 +76,9 @@ def handle_order_created():
         message = prepare_order_confirmation_message(order_data)
         logger.info(f"Order confirmation message prepared for {order_data.get('customer_phone')}")
         
+        # Log webhook request with full data
+        log_webhook_request('orders/create', webhook_data, 'success', 'Order created webhook processed')
+        
         return jsonify({
             'success': True,
             'message': 'Order created webhook processed',
@@ -84,6 +89,7 @@ def handle_order_created():
         
     except Exception as e:
         logger.error(f"Error processing order created webhook: {str(e)}")
+        log_webhook_request('orders/create', webhook_data, 'error', str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/webhook/shopify/orders/fulfilled', methods=['POST'])
@@ -93,6 +99,7 @@ def handle_order_fulfilled():
         webhook_data = request.get_json()
         
         if not webhook_data:
+            log_webhook_request('orders/fulfilled', {}, 'error', 'No data received')
             return jsonify({'error': 'No data received'}), 400
             
         order_data = extract_order_fulfilled_data(webhook_data)
@@ -114,6 +121,9 @@ def handle_order_fulfilled():
         message = prepare_fulfillment_message(order_data)
         logger.info(f"Fulfillment message prepared for order {order_data['order_id']}")
         
+        # Log webhook request with full data
+        log_webhook_request('orders/fulfilled', webhook_data, 'success', 'Order fulfilled webhook processed')
+        
         return jsonify({
             'success': True,
             'message': 'Order fulfilled webhook processed',
@@ -123,6 +133,7 @@ def handle_order_fulfilled():
         
     except Exception as e:
         logger.error(f"Error processing order fulfilled webhook: {str(e)}")
+        log_webhook_request('orders/fulfilled', webhook_data, 'error', str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/webhook/shopify/orders/cancelled', methods=['POST'])
@@ -132,6 +143,7 @@ def handle_order_cancelled():
         webhook_data = request.get_json()
         
         if not webhook_data:
+            log_webhook_request('orders/cancelled', {}, 'error', 'No data received')
             return jsonify({'error': 'No data received'}), 400
             
         order_data = extract_order_cancelled_data(webhook_data)
@@ -153,6 +165,9 @@ def handle_order_cancelled():
         message = prepare_cancellation_message(order_data)
         logger.info(f"Cancellation message prepared for order {order_data['order_id']}")
         
+        # Log webhook request with full data
+        log_webhook_request('orders/cancelled', webhook_data, 'success', 'Order cancelled webhook processed')
+        
         return jsonify({
             'success': True,
             'message': 'Order cancelled webhook processed',
@@ -162,6 +177,7 @@ def handle_order_cancelled():
         
     except Exception as e:
         logger.error(f"Error processing order cancelled webhook: {str(e)}")
+        log_webhook_request('orders/cancelled', webhook_data, 'error', str(e))
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/analytics/dashboard')
@@ -221,6 +237,91 @@ def orders_analytics():
         
     except Exception as e:
         logger.error(f"Error fetching orders data: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhook-logs')
+def get_webhook_logs():
+    """Get webhook logs with filtering and pagination"""
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 20))
+        webhook_type = request.args.get('type', '')
+        status_filter = request.args.get('status', '')
+        search = request.args.get('search', '')
+        
+        # Filter logs
+        filtered_logs = webhook_logs
+        
+        if webhook_type:
+            filtered_logs = [log for log in filtered_logs if log['webhook_type'] == webhook_type]
+        
+        if status_filter:
+            filtered_logs = [log for log in filtered_logs if log['status'] == status_filter]
+        
+        if search:
+            search_lower = search.lower()
+            filtered_logs = [
+                log for log in filtered_logs 
+                if (search_lower in log.get('order_id', '').lower() or 
+                    search_lower in log.get('customer_name', '').lower() or
+                    search_lower in log.get('customer_email', '').lower())
+            ]
+        
+        # Sort by timestamp (newest first)
+        filtered_logs.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        # Pagination
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        paginated_logs = filtered_logs[start_idx:end_idx]
+        
+        return jsonify({
+            'success': True,
+            'logs': paginated_logs,
+            'pagination': {
+                'page': page,
+                'limit': limit,
+                'total': len(filtered_logs),
+                'pages': (len(filtered_logs) + limit - 1) // limit
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error fetching webhook logs: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhook-logs/<log_id>')
+def get_webhook_log_detail(log_id):
+    """Get detailed webhook log by ID"""
+    try:
+        log_entry = next((log for log in webhook_logs if log['id'] == log_id), None)
+        
+        if not log_entry:
+            return jsonify({'success': False, 'error': 'Log entry not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'log': log_entry
+        })
+        
+    except Exception as e:
+        logger.error(f"Error fetching webhook log detail: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhook-logs/clear', methods=['POST'])
+def clear_webhook_logs():
+    """Clear all webhook logs"""
+    try:
+        global webhook_logs
+        webhook_logs = []
+        
+        return jsonify({
+            'success': True,
+            'message': 'Webhook logs cleared successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error clearing webhook logs: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # Utility functions
@@ -323,6 +424,54 @@ Reason: {order_data.get('cancel_reason', 'Not specified')}
 
 If you have any questions, please contact our support team.
     """.strip()
+
+def log_webhook_request(webhook_type, webhook_data, status, message, error_details=None):
+    """Log webhook request with full data"""
+    import uuid
+    
+    # Extract basic info from webhook data
+    order_id = str(webhook_data.get('id', ''))
+    customer_name = ''
+    customer_email = ''
+    total_amount = 0.0
+    currency = 'USD'
+    
+    if webhook_data.get('customer'):
+        customer_name = f"{webhook_data.get('customer', {}).get('first_name', '')} {webhook_data.get('customer', {}).get('last_name', '')}".strip()
+        customer_email = webhook_data.get('customer', {}).get('email', '')
+    
+    if webhook_data.get('total_price'):
+        total_amount = float(webhook_data.get('total_price', 0))
+    
+    if webhook_data.get('currency'):
+        currency = webhook_data.get('currency', 'USD')
+    
+    # Get client IP
+    client_ip = request.remote_addr or 'Unknown'
+    
+    log_entry = {
+        'id': str(uuid.uuid4()),
+        'timestamp': datetime.utcnow().isoformat(),
+        'webhook_type': webhook_type,
+        'order_id': order_id,
+        'customer_name': customer_name,
+        'customer_email': customer_email,
+        'total_amount': total_amount,
+        'currency': currency,
+        'status': status,
+        'message': message,
+        'ip_address': client_ip,
+        'headers': dict(request.headers),
+        'raw_data': webhook_data,
+        'error_details': error_details,
+        'processed_at': datetime.utcnow().isoformat()
+    }
+    
+    webhook_logs.append(log_entry)
+    
+    # Keep only last 1000 logs to prevent memory issues
+    if len(webhook_logs) > 1000:
+        webhook_logs.pop(0)
 
 # Export the Flask app for Vercel
 # Vercel expects the Flask app to be directly importable
