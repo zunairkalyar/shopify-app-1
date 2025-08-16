@@ -1,0 +1,118 @@
+{
+  "name": "webhook-system",
+  "version": "1.0.0",
+  "description": "Complete webhook system for processing Shopify order alerts with message templates and data organization",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "node tests/test-webhook-system.js",
+    "example": "node examples/send-test-webhook.js",
+    "setup": "node scripts/setup.js",
+    "setup:db": "node scripts/setup-database.js",
+    "build": "echo 'No build step required for this Node.js project'",
+    "lint": "eslint . --ext .js",
+    "format": "prettier --write .",
+    "clean": "rimraf data/*.json logs/*.log",
+    "docker:build": "docker build -t webhook-system .",
+    "docker:run": "docker run -p 3000:3000 webhook-system",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+    "docker:prod": "docker-compose up -d",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop webhook-system",
+    "pm2:restart": "pm2 restart webhook-system",
+    "pm2:logs": "pm2 logs webhook-system",
+    "health": "curl -f http://localhost:3000/health || exit 1",
+    "validate": "npm audit && npm test",
+    "prestart": "node -e \"console.log('Starting Webhook System...')\"",
+    "postinstall": "echo 'Dependencies installed. Run npm run setup for complete setup.'"
+  },
+  "keywords": [
+    "webhook",
+    "shopify",
+    "order-processing",
+    "message-templates",
+    "whatsapp",
+    "email",
+    "sms",
+    "notification",
+    "ecommerce",
+    "nodejs",
+    "express",
+    "api"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@domain.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/webhook-system.git"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "rimraf": "^5.0.5"
+  },
+  "optionalDependencies": {
+    "mongodb": "^6.3.0",
+    "pg": "^8.11.3",
+    "ioredis": "^5.3.2",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "files": [
+    "app.js",
+    "src/",
+    "public/",
+    "config/",
+    "examples/",
+    "scripts/setup.js",
+    "ecosystem.config.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "directories": {
+    "test": "tests",
+    "example": "examples",
+    "lib": "src",
+    "config": "config"
+  },
+  "homepage": "https://github.com/your-username/webhook-system#readme",
+  "bugs": {
+    "url": "https://github.com/your-username/webhook-system/issues"
+  },
+  "config": {
+    "port": 3000,
+    "host": "localhost"
+  },
+  "contributors": [
+    {
+      "name": "Your Name",
+      "email": "your.email@domain.com",
+      "role": "Developer"
+    }
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/your-username"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

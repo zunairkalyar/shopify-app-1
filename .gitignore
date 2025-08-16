@@ -12,7 +12,9 @@ pids/
 *.seed
 *.pid.lock
 data/
-*.json
+data/*.json
+!package.json
+!vercel.json
 
 # Coverage directory used by tools like istanbul
 coverage/

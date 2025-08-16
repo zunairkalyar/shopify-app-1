@@ -1,0 +1,440 @@
+{
+  "id": 6000651075838,
+  "admin_graphql_api_id": "gid://shopify/Order/6000651075838",
+  "app_id": 1354745,
+  "browser_ip": "121.91.57.242",
+  "buyer_accepts_marketing": false,
+  "cancel_reason": null,
+  "cancelled_at": null,
+  "cart_token": null,
+  "checkout_id": 36212731740414,
+  "checkout_token": "876a3242af53f6d29e852885a752582d",
+  "client_details": {
+    "accept_language": "en-GB",
+    "browser_height": null,
+    "browser_ip": "121.91.57.242",
+    "browser_width": null,
+    "session_hash": null,
+    "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_3_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Mobile/15E148 Safari/604.1"
+  },
+  "closed_at": null,
+  "confirmation_number": "ZU8WLCWQ6",
+  "confirmed": true,
+  "contact_email": null,
+  "created_at": "2025-08-16T12:28:19+05:00",
+  "currency": "PKR",
+  "current_shipping_price_set": {
+    "shop_money": {
+      "amount": "230.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "230.00",
+      "currency_code": "PKR"
+    }
+  },
+  "current_subtotal_price": "1424.05",
+  "current_subtotal_price_set": {
+    "shop_money": {
+      "amount": "1424.05",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "1424.05",
+      "currency_code": "PKR"
+    }
+  },
+  "current_total_additional_fees_set": null,
+  "current_total_discounts": "74.95",
+  "current_total_discounts_set": {
+    "shop_money": {
+      "amount": "74.95",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "74.95",
+      "currency_code": "PKR"
+    }
+  },
+  "current_total_duties_set": null,
+  "current_total_price": "1654.05",
+  "current_total_price_set": {
+    "shop_money": {
+      "amount": "1654.05",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "1654.05",
+      "currency_code": "PKR"
+    }
+  },
+  "current_total_tax": "0.00",
+  "current_total_tax_set": {
+    "shop_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    }
+  },
+  "customer_locale": "en-GB",
+  "device_id": null,
+  "discount_codes": [
+    {
+      "code": "PREPAID DISCOUNT",
+      "amount": "74.95",
+      "type": "fixed_amount"
+    }
+  ],
+  "duties_included": false,
+  "email": "customer@example.com",
+  "estimated_taxes": false,
+  "financial_status": "pending",
+  "fulfillment_status": null,
+  "landing_site": "/collections/shop",
+  "landing_site_ref": null,
+  "location_id": null,
+  "merchant_business_entity_id": "MTc0MzA0NjE4NzUw",
+  "merchant_of_record_app_id": null,
+  "name": "#21002",
+  "note": "Please deliver in the evening",
+  "note_attributes": [
+    {
+      "name": "Country code",
+      "value": "PK"
+    }
+  ],
+  "number": 2,
+  "order_number": 1002,
+  "order_status_url": "https://mazaylo.com/74304618750/orders/c7120427428f22de1c4a7eec459e8c4a/authenticate?key=efd8ac855bc35b6b426b8c186ff18354",
+  "original_total_additional_fees_set": null,
+  "original_total_duties_set": null,
+  "payment_gateway_names": {
+    "0": "Cash on Delivery (COD)"
+  },
+  "phone": "+923443292360",
+  "po_number": null,
+  "presentment_currency": "PKR",
+  "processed_at": "2025-08-16T12:28:16+05:00",
+  "reference": null,
+  "referring_site": "https://nk03p0-ss.myshopify.com/",
+  "source_identifier": null,
+  "source_name": "shopify_draft_order",
+  "source_url": null,
+  "subtotal_price": "1424.05",
+  "subtotal_price_set": {
+    "shop_money": {
+      "amount": "1424.05",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "1424.05",
+      "currency_code": "PKR"
+    }
+  },
+  "tags": "draft_order_for_checkout_button, releasit_cod_form",
+  "tax_exempt": false,
+  "tax_lines": [],
+  "taxes_included": false,
+  "test": false,
+  "token": "c7120427428f22de1c4a7eec459e8c4a",
+  "total_cash_rounding_payment_adjustment_set": {
+    "shop_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    }
+  },
+  "total_cash_rounding_refund_adjustment_set": {
+    "shop_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    }
+  },
+  "total_discounts": "74.95",
+  "total_discounts_set": {
+    "shop_money": {
+      "amount": "74.95",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "74.95",
+      "currency_code": "PKR"
+    }
+  },
+  "total_line_items_price": "1499.00",
+  "total_line_items_price_set": {
+    "shop_money": {
+      "amount": "1499.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "1499.00",
+      "currency_code": "PKR"
+    }
+  },
+  "total_outstanding": "1654.05",
+  "total_price": "1654.05",
+  "total_price_set": {
+    "shop_money": {
+      "amount": "1654.05",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "1654.05",
+      "currency_code": "PKR"
+    }
+  },
+  "total_shipping_price_set": {
+    "shop_money": {
+      "amount": "230.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "230.00",
+      "currency_code": "PKR"
+    }
+  },
+  "total_tax": "0.00",
+  "total_tax_set": {
+    "shop_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    },
+    "presentment_money": {
+      "amount": "0.00",
+      "currency_code": "PKR"
+    }
+  },
+  "total_tip_received": "0.00",
+  "total_weight": 0,
+  "updated_at": "2025-08-16T12:28:20+05:00",
+  "user_id": null,
+  "billing_address": {
+    "first_name": "Hassan",
+    "address1": "123 Main Street",
+    "phone": "+923443292360",
+    "city": "Karachi",
+    "zip": "74200",
+    "province": "Sindh",
+    "country": "Pakistan",
+    "last_name": "Ahmed",
+    "address2": "Apartment 4B",
+    "company": null,
+    "latitude": null,
+    "longitude": null,
+    "name": "Hassan Ahmed",
+    "country_code": "PK",
+    "province_code": "SD"
+  },
+  "customer": {
+    "id": 8219799355646,
+    "email": "hassan.ahmed@example.com",
+    "created_at": "2025-04-24T15:22:32+05:00",
+    "updated_at": "2025-08-16T12:28:19+05:00",
+    "first_name": "Hassan",
+    "last_name": "Ahmed",
+    "state": "enabled",
+    "note": "Regular customer, prefers evening delivery",
+    "verified_email": true,
+    "multipass_identifier": null,
+    "tax_exempt": false,
+    "phone": "+923443292360",
+    "currency": "PKR",
+    "tax_exemptions": [],
+    "admin_graphql_api_id": "gid://shopify/Customer/8219799355646",
+    "default_address": {
+      "id": 9612266733822,
+      "customer_id": 8219799355646,
+      "first_name": "Hassan",
+      "last_name": "Ahmed",
+      "company": null,
+      "address1": "123 Main Street",
+      "address2": "Apartment 4B",
+      "city": "Karachi",
+      "province": "Sindh",
+      "country": "Pakistan",
+      "zip": "74200",
+      "phone": "+923443292360",
+      "name": "Hassan Ahmed",
+      "province_code": "SD",
+      "country_code": "PK",
+      "country_name": "Pakistan",
+      "default": true
+    },
+    "orders_count": 3,
+    "total_spent": "4892.15"
+  },
+  "discount_applications": [
+    {
+      "target_type": "line_item",
+      "type": "manual",
+      "value": "74.95",
+      "value_type": "fixed_amount",
+      "allocation_method": "across",
+      "target_selection": "all",
+      "title": "PREPAID DISCOUNT",
+      "description": "Discount for prepaid orders"
+    }
+  ],
+  "fulfillments": [],
+  "line_items": [
+    {
+      "id": 14627859300606,
+      "admin_graphql_api_id": "gid://shopify/LineItem/14627859300606",
+      "attributed_staffs": [],
+      "current_quantity": 1,
+      "fulfillable_quantity": 1,
+      "fulfillment_service": "manual",
+      "fulfillment_status": null,
+      "gift_card": false,
+      "grams": 250,
+      "name": "Super Viga 10 Million Delay Spray for Men | German Maca Extract Formula | 33% OFF | MazayLO",
+      "price": "1499.00",
+      "price_set": {
+        "shop_money": {
+          "amount": "1499.00",
+          "currency_code": "PKR"
+        },
+        "presentment_money": {
+          "amount": "1499.00",
+          "currency_code": "PKR"
+        }
+      },
+      "product_exists": true,
+      "product_id": 8867459203326,
+      "properties": [],
+      "quantity": 1,
+      "requires_shipping": true,
+      "sales_line_item_group_id": null,
+      "sku": "MAZ0141",
+      "taxable": false,
+      "title": "Super Viga 10 Million Delay Spray for Men | German Maca Extract Formula | 33% OFF | MazayLO",
+      "total_discount": "0.00",
+      "total_discount_set": {
+        "shop_money": {
+          "amount": "0.00",
+          "currency_code": "PKR"
+        },
+        "presentment_money": {
+          "amount": "0.00",
+          "currency_code": "PKR"
+        }
+      },
+      "variant_id": 46638607859966,
+      "variant_inventory_management": "shopify",
+      "variant_title": "Default Title",
+      "vendor": "MazayLO",
+      "tax_lines": [
+        {
+          "channel_liable": false,
+          "price": "0.00",
+          "price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "rate": 0.16,
+          "title": "GST"
+        }
+      ],
+      "duties": [],
+      "discount_allocations": [
+        {
+          "amount": "74.95",
+          "amount_set": {
+            "shop_money": {
+              "amount": "74.95",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "74.95",
+              "currency_code": "PKR"
+            }
+          },
+          "discount_application_index": 0
+        }
+      ]
+    }
+  ],
+  "payment_terms": null,
+  "refunds": [],
+  "shipping_address": {
+    "first_name": "Hassan",
+    "address1": "123 Main Street",
+    "phone": "+923443292360",
+    "city": "Karachi",
+    "zip": "74200",
+    "province": "Sindh",
+    "country": "Pakistan",
+    "last_name": "Ahmed",
+    "address2": "Apartment 4B",
+    "company": null,
+    "latitude": 24.8607,
+    "longitude": 67.0011,
+    "name": "Hassan Ahmed",
+    "country_code": "PK",
+    "province_code": "SD"
+  },
+  "shipping_lines": [
+    {
+      "id": 4884459290878,
+      "carrier_identifier": null,
+      "code": "standard_delivery",
+      "current_discounted_price_set": {
+        "shop_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        },
+        "presentment_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        }
+      },
+      "discounted_price": "230.00",
+      "discounted_price_set": {
+        "shop_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        },
+        "presentment_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        }
+      },
+      "is_removed": false,
+      "phone": null,
+      "price": "230.00",
+      "price_set": {
+        "shop_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        },
+        "presentment_money": {
+          "amount": "230.00",
+          "currency_code": "PKR"
+        }
+      },
+      "requested_fulfillment_service_id": null,
+      "source": "shopify",
+      "title": "Standard Delivery: Rs 230",
+      "tax_lines": [],
+      "discount_allocations": []
+    }
+  ],
+  "returns": []
+}
