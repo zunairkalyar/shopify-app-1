@@ -12,6 +12,7 @@ const fs = require('fs').promises;
 // Import our custom modules
 const DataOrganizer = require('./src/organizers/DataOrganizer');
 const MessageTemplates = require('./src/templates/MessageTemplates');
+const AnalyticsService = require('./src/services/AnalyticsService');
 
 class WebhookApp {
     constructor(options = {}) {
@@ -44,6 +45,9 @@ class WebhookApp {
             supportEmail: this.config.supportEmail,
             websiteUrl: this.config.websiteUrl
         });
+
+        // Initialize analytics service
+        this.analyticsService = new AnalyticsService();
 
         // Storage for processed webhooks
         this.webhookStorage = new Map();
@@ -114,11 +118,19 @@ class WebhookApp {
             res.sendFile(path.join(__dirname, 'public', 'index.html'));
         });
 
+        // Analytics dashboard
+        this.app.get('/analytics', (req, res) => {
+            res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
+        });
+
         // Webhook endpoints
         this.setupWebhookRoutes();
 
         // API endpoints
         this.setupApiRoutes();
+
+        // Analytics endpoints
+        this.setupAnalyticsRoutes();
 
         // Template management
         this.setupTemplateRoutes();
@@ -206,6 +218,57 @@ class WebhookApp {
                 });
             } catch (error) {
                 res.status(400).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+        });
+    }
+
+    /**
+     * Setup analytics routes
+     */
+    setupAnalyticsRoutes() {
+        // Get dashboard analytics
+        this.app.get('/api/analytics/dashboard', async (req, res) => {
+            try {
+                const metrics = await this.analyticsService.getDashboardMetrics();
+                res.json({
+                    success: true,
+                    ...metrics
+                });
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+        });
+
+        // Get analytics report
+        this.app.get('/api/analytics/report', async (req, res) => {
+            try {
+                const period = req.query.period || '24h';
+                const report = await this.analyticsService.getAnalyticsReport(period);
+                res.json({
+                    success: true,
+                    ...report
+                });
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    error: error.message
+                });
+            }
+        });
+
+        // Reset analytics data (for testing)
+        this.app.post('/api/analytics/reset', async (req, res) => {
+            try {
+                const result = await this.analyticsService.resetAnalytics();
+                res.json(result);
+            } catch (error) {
+                res.status(500).json({
                     success: false,
                     error: error.message
                 });
@@ -325,6 +388,45 @@ class WebhookApp {
             // Store webhook
             this.webhookStorage.set(webhookId, webhookRecord);
             await this.saveWebhookToFile(webhookRecord);
+
+            // Track analytics
+            try {
+                // Track order
+                await this.analyticsService.trackOrder({
+                    ...req.body,
+                    status: eventType.replace('order_', ''),
+                    processing_time: webhookRecord.processing_time_ms
+                });
+
+                // Track messages (simulate message delivery tracking)
+                if (messages.whatsapp) {
+                    await this.analyticsService.trackMessage({
+                        channel: 'whatsapp',
+                        status: 'sent', // In real implementation, this would be updated based on actual delivery
+                        order_id: organizedData.order?.name,
+                        recipient: organizedData.customer?.phone
+                    });
+                }
+                if (messages.email) {
+                    await this.analyticsService.trackMessage({
+                        channel: 'email',
+                        status: 'sent',
+                        order_id: organizedData.order?.name,
+                        recipient: organizedData.customer?.email
+                    });
+                }
+                if (messages.sms) {
+                    await this.analyticsService.trackMessage({
+                        channel: 'sms',
+                        status: 'sent',
+                        order_id: organizedData.order?.name,
+                        recipient: organizedData.customer?.phone
+                    });
+                }
+            } catch (analyticsError) {
+                console.error('Analytics tracking error:', analyticsError);
+                // Don't fail the webhook processing if analytics fails
+            }
 
             this.stats.successful_processed++;
             this.logWebhook('PROCESSED', webhookId, eventType, webhookRecord.summary);
