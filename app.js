@@ -123,6 +123,11 @@ class WebhookApp {
             res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
         });
 
+        // New comprehensive dashboard
+        this.app.get('/dashboard', (req, res) => {
+            res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+        });
+
         // Webhook endpoints
         this.setupWebhookRoutes();
 
