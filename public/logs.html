@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Logs - Webhook System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .control-input {
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #ebebeb;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .logs-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logs-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .logs-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #f0f0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 1rem;
+            margin: 0;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-left: 3px solid transparent;
+            border-radius: 3px;
+        }
+
+        .log-info {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .log-warning {
+            border-left-color: #FF9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+
+        .log-error {
+            border-left-color: #F44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .log-debug {
+            border-left-color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+        }
+
+        .log-timestamp {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .log-level {
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin: 0 0.5rem;
+        }
+
+        .log-level.info { background: #4CAF50; color: white; }
+        .log-level.warning { background: #FF9800; color: white; }
+        .log-level.error { background: #F44336; color: white; }
+        .log-level.debug { background: #2196F3; color: white; }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            color: #667eea;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active {
+            background: #4CAF50;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .controls-row { flex-direction: column; }
+            .stats-row { flex-direction: column; gap: 0.5rem; }
+            .back-btn { position: static; margin-bottom: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>📋 System Logs</h1>
+            <p>Monitor and troubleshoot your webhook system</p>
+        </div>
+
+        <div class="controls">
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="logLevel">Log Level</label>
+                    <select class="control-input" id="logLevel" onchange="filterLogs()">
+                        <option value="all">All Levels</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="logSource">Source</label>
+                    <select class="control-input" id="logSource" onchange="filterLogs()">
+                        <option value="all">All Sources</option>
+                        <option value="webhook">Webhooks</option>
+                        <option value="api">API</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="searchQuery">Search</label>
+                    <input type="text" class="control-input" id="searchQuery" placeholder="Search logs..." oninput="filterLogs()">
+                </div>
+                <div class="control-group">
+                    <label>&nbsp;</label>
+                    <div>
+                        <button class="btn btn-primary" onclick="refreshLogs()">Refresh</button>
+                        <button class="btn btn-secondary" onclick="clearLogs()">Clear</button>
+                        <button class="btn btn-secondary" onclick="exportLogs()">Export</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <div class="logs-header">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="status-indicator status-active"></span>
+                        <span>Live Monitoring</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Entries: <span id="totalEntries">0</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Errors: <span id="errorCount">0</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Last Update: <span id="lastUpdate">Never</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="logs-content" id="logsContent">
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:07:31</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[SYSTEM] Webhook system started successfully</span>
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:07:32</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[API] Health check endpoint ready</span>
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:08:15</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[WEBHOOK] Order created webhook received - Order ID: test123</span>
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:08:16</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[WHATSAPP] Order confirmation message prepared for +923001234567</span>
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:10:22</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[WEBHOOK] Order fulfilled webhook received - Order ID: test123</span>
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">2024-01-16 14:10:23</span>
+                    <span class="log-level info">INFO</span>
+                    <span>[WHATSAPP] Fulfillment message prepared for order test123</span>
+                </div>
+                <div class="log-entry log-debug">
+                    <span class="log-timestamp">2024-01-16 14:12:05</span>
+                    <span class="log-level debug">DEBUG</span>
+                    <span>[API] Dashboard analytics requested</span>
+                </div>
+                <div class="log-entry log-debug">
+                    <span class="log-timestamp">2024-01-16 14:12:06</span>
+                    <span class="log-level debug">DEBUG</span>
+                    <span>[API] Orders data requested with filter: all</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allLogs = [];
+        let filteredLogs = [];
+
+        // Sample log data
+        const sampleLogs = [
+            { timestamp: '2024-01-16 14:07:31', level: 'info', source: 'system', message: 'Webhook system started successfully' },
+            { timestamp: '2024-01-16 14:07:32', level: 'info', source: 'api', message: 'Health check endpoint ready' },
+            { timestamp: '2024-01-16 14:08:15', level: 'info', source: 'webhook', message: 'Order created webhook received - Order ID: test123' },
+            { timestamp: '2024-01-16 14:08:16', level: 'info', source: 'whatsapp', message: 'Order confirmation message prepared for +923001234567' },
+            { timestamp: '2024-01-16 14:10:22', level: 'info', source: 'webhook', message: 'Order fulfilled webhook received - Order ID: test123' },
+            { timestamp: '2024-01-16 14:10:23', level: 'info', source: 'whatsapp', message: 'Fulfillment message prepared for order test123' },
+            { timestamp: '2024-01-16 14:12:05', level: 'debug', source: 'api', message: 'Dashboard analytics requested' },
+            { timestamp: '2024-01-16 14:12:06', level: 'debug', source: 'api', message: 'Orders data requested with filter: all' },
+            { timestamp: '2024-01-16 14:15:30', level: 'warning', source: 'whatsapp', message: 'WhatsApp API rate limit approaching' },
+            { timestamp: '2024-01-16 14:20:15', level: 'error', source: 'webhook', message: 'Failed to process webhook: Invalid JSON payload' },
+            { timestamp: '2024-01-16 14:22:45', level: 'info', source: 'system', message: 'Automatic backup completed' },
+            { timestamp: '2024-01-16 14:25:10', level: 'debug', source: 'api', message: 'Webhook test initiated for order/create endpoint' }
+        ];
+
+        // Initialize logs
+        function initializeLogs() {
+            allLogs = [...sampleLogs];
+            filteredLogs = [...allLogs];
+            renderLogs();
+            updateStats();
+        }
+
+        // Render logs to the container
+        function renderLogs() {
+            const logsContent = document.getElementById('logsContent');
+            
+            if (filteredLogs.length === 0) {
+                logsContent.innerHTML = '<div class="log-entry">No logs match your current filters.</div>';
+                return;
+            }
+
+            const logsHtml = filteredLogs.map(log => `
+                <div class="log-entry log-${log.level}">
+                    <span class="log-timestamp">${log.timestamp}</span>
+                    <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+                    <span>[${log.source.toUpperCase()}] ${log.message}</span>
+                </div>
+            `).join('');
+
+            logsContent.innerHTML = logsHtml;
+            
+            // Auto-scroll to bottom
+            logsContent.scrollTop = logsContent.scrollHeight;
+        }
+
+        // Filter logs based on current filter settings
+        function filterLogs() {
+            const levelFilter = document.getElementById('logLevel').value;
+            const sourceFilter = document.getElementById('logSource').value;
+            const searchQuery = document.getElementById('searchQuery').value.toLowerCase();
+
+            filteredLogs = allLogs.filter(log => {
+                // Level filter
+                if (levelFilter !== 'all' && log.level !== levelFilter) {
+                    return false;
+                }
+
+                // Source filter
+                if (sourceFilter !== 'all' && log.source !== sourceFilter) {
+                    return false;
+                }
+
+                // Search filter
+                if (searchQuery && !log.message.toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            renderLogs();
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalEntries').textContent = filteredLogs.length;
+            document.getElementById('errorCount').textContent = filteredLogs.filter(log => log.level === 'error').length;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Add a new log entry (simulated)
+        function addLogEntry(level, source, message) {
+            const now = new Date();
+            const timestamp = now.getFullYear() + '-' + 
+                             String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                             String(now.getDate()).padStart(2, '0') + ' ' + 
+                             String(now.getHours()).padStart(2, '0') + ':' + 
+                             String(now.getMinutes()).padStart(2, '0') + ':' + 
+                             String(now.getSeconds()).padStart(2, '0');
+
+            const newLog = { timestamp, level, source, message };
+            allLogs.push(newLog);
+
+            // Keep only last 1000 logs
+            if (allLogs.length > 1000) {
+                allLogs = allLogs.slice(-1000);
+            }
+
+            filterLogs();
+        }
+
+        // Refresh logs (simulate new entries)
+        function refreshLogs() {
+            const messages = [
+                { level: 'info', source: 'webhook', message: 'New order webhook received - Order ID: ' + Math.random().toString(36).substr(2, 9) },
+                { level: 'info', source: 'whatsapp', message: 'Message sent successfully to customer' },
+                { level: 'debug', source: 'api', message: 'API health check completed' },
+                { level: 'info', source: 'system', message: 'System performance check completed' }
+            ];
+
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            addLogEntry(randomMessage.level, randomMessage.source, randomMessage.message);
+        }
+
+        // Clear all logs
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear all logs? This cannot be undone.')) {
+                allLogs = [];
+                filteredLogs = [];
+                renderLogs();
+                updateStats();
+            }
+        }
+
+        // Export logs
+        function exportLogs() {
+            const exportData = filteredLogs.map(log => 
+                `${log.timestamp} [${log.level.toUpperCase()}] [${log.source.toUpperCase()}] ${log.message}`
+            ).join('\n');
+
+            const blob = new Blob([exportData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `webhook-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Simulate live updates
+        function startLiveUpdates() {
+            setInterval(() => {
+                if (Math.random() < 0.3) { // 30% chance of new log every 10 seconds
+                    refreshLogs();
+                }
+            }, 10000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeLogs();
+            startLiveUpdates();
+        });
+    </script>
+</body>
+</html>

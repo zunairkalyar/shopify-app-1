@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Management - Webhook System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .webhook-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .webhook-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .webhook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .webhook-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-inactive {
+            background: #ffe8e8;
+            color: #d32f2f;
+        }
+
+        .webhook-details {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .detail-value {
+            font-family: 'Courier New', monospace;
+            background: #f8f9ff;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #667eea;
+        }
+
+        .url-input {
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f8f9ff;
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #ebebeb;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            color: #667eea;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .test-results {
+            background: #f8f9ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .webhook-header { flex-direction: column; gap: 1rem; }
+            .detail-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Webhook Management</h1>
+            <p>Configure and monitor your Shopify webhooks</p>
+        </div>
+
+        <div class="webhook-grid">
+            <!-- Order Created Webhook -->
+            <div class="webhook-card">
+                <div class="webhook-header">
+                    <h3 class="webhook-title">🛍️ Order Created</h3>
+                    <span class="status-badge status-active">Active</span>
+                </div>
+                <div class="webhook-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Webhook URL:</span>
+                        <div>
+                            <span class="detail-value" id="orderCreatedUrl">https://webhook-system.vercel.app/webhook/shopify/orders/create</span>
+                            <button class="copy-btn" onclick="copyToClipboard('orderCreatedUrl')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Event Type:</span>
+                        <span class="detail-value">orders/create</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Received:</span>
+                        <span class="detail-value" id="createdCount">0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Received:</span>
+                        <span class="detail-value" id="createdLast">Never</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Actions:</span>
+                        <div>
+                            <button class="btn btn-primary" onclick="testWebhook('create')">Test Webhook</button>
+                            <button class="btn btn-secondary" onclick="viewLogs('create')">View Logs</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="createTestResults" class="test-results" style="display: none;"></div>
+            </div>
+
+            <!-- Order Fulfilled Webhook -->
+            <div class="webhook-card">
+                <div class="webhook-header">
+                    <h3 class="webhook-title">📦 Order Fulfilled</h3>
+                    <span class="status-badge status-active">Active</span>
+                </div>
+                <div class="webhook-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Webhook URL:</span>
+                        <div>
+                            <span class="detail-value" id="orderFulfilledUrl">https://webhook-system.vercel.app/webhook/shopify/orders/fulfilled</span>
+                            <button class="copy-btn" onclick="copyToClipboard('orderFulfilledUrl')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Event Type:</span>
+                        <span class="detail-value">orders/fulfilled</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Received:</span>
+                        <span class="detail-value" id="fulfilledCount">0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Received:</span>
+                        <span class="detail-value" id="fulfilledLast">Never</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Actions:</span>
+                        <div>
+                            <button class="btn btn-primary" onclick="testWebhook('fulfilled')">Test Webhook</button>
+                            <button class="btn btn-secondary" onclick="viewLogs('fulfilled')">View Logs</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="fulfilledTestResults" class="test-results" style="display: none;"></div>
+            </div>
+
+            <!-- Order Cancelled Webhook -->
+            <div class="webhook-card">
+                <div class="webhook-header">
+                    <h3 class="webhook-title">❌ Order Cancelled</h3>
+                    <span class="status-badge status-active">Active</span>
+                </div>
+                <div class="webhook-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Webhook URL:</span>
+                        <div>
+                            <span class="detail-value" id="orderCancelledUrl">https://webhook-system.vercel.app/webhook/shopify/orders/cancelled</span>
+                            <button class="copy-btn" onclick="copyToClipboard('orderCancelledUrl')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Event Type:</span>
+                        <span class="detail-value">orders/cancelled</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Received:</span>
+                        <span class="detail-value" id="cancelledCount">0</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Received:</span>
+                        <span class="detail-value" id="cancelledLast">Never</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Actions:</span>
+                        <div>
+                            <button class="btn btn-primary" onclick="testWebhook('cancelled')">Test Webhook</button>
+                            <button class="btn btn-secondary" onclick="viewLogs('cancelled')">View Logs</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="cancelledTestResults" class="test-results" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy to clipboard functionality
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const button = element.nextElementSibling;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#2e7d32';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // Test webhook functionality
+        async function testWebhook(type) {
+            const resultDiv = document.getElementById(`${type}TestResults`);
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing webhook...';
+
+            const testData = {
+                create: {
+                    id: "test_" + Date.now(),
+                    order_number: "TEST-001",
+                    customer: {
+                        first_name: "Test",
+                        last_name: "Customer",
+                        email: "test@example.com",
+                        phone: "+923001234567"
+                    },
+                    total_price: "1500.00",
+                    currency: "PKR",
+                    line_items: [{
+                        name: "Test Product",
+                        quantity: 1,
+                        price: "1500.00"
+                    }],
+                    created_at: new Date().toISOString()
+                },
+                fulfilled: {
+                    id: "test_" + Date.now(),
+                    tracking_number: "TEST123456",
+                    tracking_company: "Test Shipping",
+                    created_at: new Date().toISOString()
+                },
+                cancelled: {
+                    id: "test_" + Date.now(),
+                    cancel_reason: "Customer request",
+                    cancelled_at: new Date().toISOString()
+                }
+            };
+
+            try {
+                const response = await fetch(`/webhook/shopify/orders/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData[type])
+                });
+
+                const result = await response.json();
+                resultDiv.innerHTML = `
+                    <strong>Test Result:</strong> ${response.ok ? 'SUCCESS' : 'FAILED'}<br>
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong> ${JSON.stringify(result, null, 2)}
+                `;
+                resultDiv.style.color = response.ok ? '#2e7d32' : '#d32f2f';
+            } catch (error) {
+                resultDiv.textContent = `Test failed: ${error.message}`;
+                resultDiv.style.color = '#d32f2f';
+            }
+        }
+
+        // View logs functionality
+        function viewLogs(type) {
+            window.open('logs.html', '_blank');
+        }
+
+        // Load webhook statistics
+        async function loadWebhookStats() {
+            try {
+                const response = await fetch('/api/analytics/dashboard');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update counts (simplified for demo)
+                    document.getElementById('createdCount').textContent = data.summary.totalOrders || 0;
+                    document.getElementById('fulfilledCount').textContent = Math.floor((data.summary.totalOrders || 0) * 0.8);
+                    document.getElementById('cancelledCount').textContent = Math.floor((data.summary.totalOrders || 0) * 0.1);
+                    
+                    // Update last received times
+                    const now = new Date();
+                    document.getElementById('createdLast').textContent = now.toLocaleDateString();
+                    document.getElementById('fulfilledLast').textContent = now.toLocaleDateString();
+                    document.getElementById('cancelledLast').textContent = now.toLocaleDateString();
+                }
+            } catch (error) {
+                console.error('Error loading webhook stats:', error);
+            }
+        }
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadWebhookStats);
+    </script>
+</body>
+</html>

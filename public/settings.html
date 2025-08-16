@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Webhook System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .settings-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #ebebeb;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            color: #667eea;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-box p {
+            color: #1976d2;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-connected { background: #2e7d32; }
+        .status-disconnected { background: #d32f2f; }
+        .status-pending { background: #f57c00; }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .back-btn { position: static; margin-bottom: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Settings</h1>
+            <p>Configure your webhook system</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- WhatsApp Integration -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-icon">📱</span>
+                    <h2 class="section-title">WhatsApp Integration</h2>
+                </div>
+                <form class="form-grid" onsubmit="saveWhatsAppSettings(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="whatsappProvider">Provider</label>
+                            <select class="form-control" id="whatsappProvider">
+                                <option value="">Select Provider</option>
+                                <option value="twilio">Twilio WhatsApp API</option>
+                                <option value="360dialog">360Dialog</option>
+                                <option value="chatapi">ChatAPI</option>
+                                <option value="meta">Meta Business Platform</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Connection Status</label>
+                            <div style="padding: 0.8rem 0;">
+                                <span class="status-indicator status-disconnected"></span>
+                                <span>Not Connected</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="whatsappApiKey">API Key</label>
+                            <input type="password" class="form-control" id="whatsappApiKey" placeholder="Enter your API key">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="whatsappPhoneNumber">Phone Number</label>
+                            <input type="text" class="form-control" id="whatsappPhoneNumber" placeholder="+92xxxxxxxxxx">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="whatsappWebhookUrl">Webhook URL</label>
+                        <input type="url" class="form-control" id="whatsappWebhookUrl" placeholder="https://your-endpoint.com/whatsapp">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn btn-primary">Save WhatsApp Settings</button>
+                        <button type="button" class="btn btn-secondary" onclick="testWhatsAppConnection()">Test Connection</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Shopify Configuration -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-icon">🛍️</span>
+                    <h2 class="section-title">Shopify Configuration</h2>
+                </div>
+                <form class="form-grid" onsubmit="saveShopifySettings(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="shopifyStore">Store Name</label>
+                            <input type="text" class="form-control" id="shopifyStore" placeholder="your-store.myshopify.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="shopifyApiKey">API Key</label>
+                            <input type="password" class="form-control" id="shopifyApiKey" placeholder="Enter Shopify API key">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="webhookSecret">Webhook Secret</label>
+                        <input type="password" class="form-control" id="webhookSecret" placeholder="Webhook verification secret">
+                    </div>
+                    <div class="info-box">
+                        <p><strong>Webhook URLs for Shopify:</strong></p>
+                        <p>• Order Created: https://webhook-system.vercel.app/webhook/shopify/orders/create</p>
+                        <p>• Order Fulfilled: https://webhook-system.vercel.app/webhook/shopify/orders/fulfilled</p>
+                        <p>• Order Cancelled: https://webhook-system.vercel.app/webhook/shopify/orders/cancelled</p>
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn btn-primary">Save Shopify Settings</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-icon">🔔</span>
+                    <h2 class="section-title">Notification Settings</h2>
+                </div>
+                <form class="form-grid" onsubmit="saveNotificationSettings(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Order Created Notifications</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyOrderCreated" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Order Fulfilled Notifications</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyOrderFulfilled" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Order Cancelled Notifications</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notifyOrderCancelled" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Notifications</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="emailNotifications">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="adminEmail">Admin Email</label>
+                        <input type="email" class="form-control" id="adminEmail" placeholder="admin@yourstore.com">
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- System Settings -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-icon">🔧</span>
+                    <h2 class="section-title">System Settings</h2>
+                </div>
+                <form class="form-grid" onsubmit="saveSystemSettings(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="timezone">Timezone</label>
+                            <select class="form-control" id="timezone">
+                                <option value="Asia/Karachi">Asia/Karachi (PKT)</option>
+                                <option value="UTC">UTC</option>
+                                <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                                <option value="Europe/London">Europe/London (GMT)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="currency">Default Currency</label>
+                            <select class="form-control" id="currency">
+                                <option value="PKR">Pakistani Rupee (PKR)</option>
+                                <option value="USD">US Dollar (USD)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                                <option value="GBP">British Pound (GBP)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Debug Mode</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="debugMode">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Auto-backup</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoBackup" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn btn-primary">Save System Settings</button>
+                        <button type="button" class="btn btn-secondary" onclick="exportSettings()">Export Settings</button>
+                        <button type="button" class="btn btn-danger" onclick="resetSettings()">Reset to Defaults</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load saved settings on page load
+        function loadSettings() {
+            // Load WhatsApp settings
+            document.getElementById('whatsappProvider').value = localStorage.getItem('whatsappProvider') || '';
+            document.getElementById('whatsappApiKey').value = localStorage.getItem('whatsappApiKey') || '';
+            document.getElementById('whatsappPhoneNumber').value = localStorage.getItem('whatsappPhoneNumber') || '';
+            document.getElementById('whatsappWebhookUrl').value = localStorage.getItem('whatsappWebhookUrl') || '';
+
+            // Load Shopify settings
+            document.getElementById('shopifyStore').value = localStorage.getItem('shopifyStore') || '';
+            document.getElementById('shopifyApiKey').value = localStorage.getItem('shopifyApiKey') || '';
+            document.getElementById('webhookSecret').value = localStorage.getItem('webhookSecret') || '';
+
+            // Load notification settings
+            document.getElementById('notifyOrderCreated').checked = localStorage.getItem('notifyOrderCreated') !== 'false';
+            document.getElementById('notifyOrderFulfilled').checked = localStorage.getItem('notifyOrderFulfilled') !== 'false';
+            document.getElementById('notifyOrderCancelled').checked = localStorage.getItem('notifyOrderCancelled') !== 'false';
+            document.getElementById('emailNotifications').checked = localStorage.getItem('emailNotifications') === 'true';
+            document.getElementById('adminEmail').value = localStorage.getItem('adminEmail') || '';
+
+            // Load system settings
+            document.getElementById('timezone').value = localStorage.getItem('timezone') || 'Asia/Karachi';
+            document.getElementById('currency').value = localStorage.getItem('currency') || 'PKR';
+            document.getElementById('debugMode').checked = localStorage.getItem('debugMode') === 'true';
+            document.getElementById('autoBackup').checked = localStorage.getItem('autoBackup') !== 'false';
+        }
+
+        // Save WhatsApp settings
+        function saveWhatsAppSettings(event) {
+            event.preventDefault();
+            
+            localStorage.setItem('whatsappProvider', document.getElementById('whatsappProvider').value);
+            localStorage.setItem('whatsappApiKey', document.getElementById('whatsappApiKey').value);
+            localStorage.setItem('whatsappPhoneNumber', document.getElementById('whatsappPhoneNumber').value);
+            localStorage.setItem('whatsappWebhookUrl', document.getElementById('whatsappWebhookUrl').value);
+            
+            alert('WhatsApp settings saved successfully!');
+        }
+
+        // Save Shopify settings
+        function saveShopifySettings(event) {
+            event.preventDefault();
+            
+            localStorage.setItem('shopifyStore', document.getElementById('shopifyStore').value);
+            localStorage.setItem('shopifyApiKey', document.getElementById('shopifyApiKey').value);
+            localStorage.setItem('webhookSecret', document.getElementById('webhookSecret').value);
+            
+            alert('Shopify settings saved successfully!');
+        }
+
+        // Save notification settings
+        function saveNotificationSettings(event) {
+            event.preventDefault();
+            
+            localStorage.setItem('notifyOrderCreated', document.getElementById('notifyOrderCreated').checked);
+            localStorage.setItem('notifyOrderFulfilled', document.getElementById('notifyOrderFulfilled').checked);
+            localStorage.setItem('notifyOrderCancelled', document.getElementById('notifyOrderCancelled').checked);
+            localStorage.setItem('emailNotifications', document.getElementById('emailNotifications').checked);
+            localStorage.setItem('adminEmail', document.getElementById('adminEmail').value);
+            
+            alert('Notification settings saved successfully!');
+        }
+
+        // Save system settings
+        function saveSystemSettings(event) {
+            event.preventDefault();
+            
+            localStorage.setItem('timezone', document.getElementById('timezone').value);
+            localStorage.setItem('currency', document.getElementById('currency').value);
+            localStorage.setItem('debugMode', document.getElementById('debugMode').checked);
+            localStorage.setItem('autoBackup', document.getElementById('autoBackup').checked);
+            
+            alert('System settings saved successfully!');
+        }
+
+        // Test WhatsApp connection
+        function testWhatsAppConnection() {
+            const provider = document.getElementById('whatsappProvider').value;
+            const apiKey = document.getElementById('whatsappApiKey').value;
+            
+            if (!provider || !apiKey) {
+                alert('Please select a provider and enter an API key first.');
+                return;
+            }
+            
+            alert('Testing WhatsApp connection... (This would test the actual connection in a real implementation)');
+        }
+
+        // Export settings
+        function exportSettings() {
+            const settings = {};
+            const inputs = document.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    settings[input.id] = input.checked;
+                } else {
+                    settings[input.id] = input.value;
+                }
+            });
+            
+            const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'webhook-system-settings.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Reset settings
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', loadSettings);
+    </script>
+</body>
+</html>
